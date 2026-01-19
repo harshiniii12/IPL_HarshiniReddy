@@ -21,11 +21,11 @@ public interface CricketerService {
  
     //Do not implement these methods in CricketerServiceImplArraylist.java class
 
-    default void updateCricketer(Cricketer cricketer) {}
+    default void updateCricketer(Cricketer cricketer) throws SQLException {}
  
-    default void deleteCricketer(int cricketerId) {}
+    default void deleteCricketer(int cricketerId) throws SQLException {}
  
-    default Cricketer getCricketerById(int cricketerId) {
+    default Cricketer getCricketerById(int cricketerId) throws SQLException {
 
         return null;
 

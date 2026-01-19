@@ -1,57 +1,71 @@
-
 package com.edutech.progressive.service.impl;
  
-import java.util.ArrayList;
-
+import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
  
 import com.edutech.progressive.dao.TeamDAO;
-
 import com.edutech.progressive.entity.Team;
-
 import com.edutech.progressive.service.TeamService;
  
 public class TeamServiceImplJdbc implements TeamService {
- 
-private final TeamDAO teamDAO;
+    private TeamDAO teamDAO;
  
     public TeamServiceImplJdbc(TeamDAO teamDAO) {
-
         this.teamDAO = teamDAO;
-
     }
  
-    @Override public List<Team> getAllTeams() { 
-
-        return new ArrayList<>(); 
-
-    }
-
-    @Override public int addTeam(Team team) {
-
-         return -1; 
-
+    @Override
+    public List<Team> getAllTeams() throws SQLException {
+        try {
+            return teamDAO.getAllTeams();
+        } catch (SQLException e) {
+            throw e;
+        } finally {
         }
-
-    @Override public List<Team> getAllTeamsSortedByName() {
-
-         return new ArrayList<>(); 
-
+    }
+ 
+    @Override
+    public int addTeam(Team team) throws SQLException {
+        try {
+            return teamDAO.addTeam(team);
+        } catch (SQLException e) {
+            throw e;
         }
-
-    @Override public Team getTeamById(int teamId) {
-
-         return null;
-
-         }
-
-    @Override public void updateTeam(Team team) {
- 
-    }
-
-    @Override public void deleteTeam(int teamId) { 
-
     }
  
+    @Override
+    public List<Team> getAllTeamsSortedByName() throws SQLException {
+        List<Team> sortTeams = teamDAO.getAllTeams();
+        Collections.sort(sortTeams);
+        return sortTeams;
+    }
+ 
+    @Override
+    public void emptyArrayList() {
+    }
+ 
+    public Team getTeamById(int teamId) throws SQLException {
+        try {
+            return teamDAO.getTeamById(teamId);
+        } catch (SQLException e) {
+            throw e;
+        }
+    }
+ 
+    public void updateTeam(Team team) throws SQLException {
+        try {
+            teamDAO.updateTeam(team);
+        } catch (SQLException e) {
+            throw e;
+        }
+    }
+ 
+    public void deleteTeam(int teamId) throws SQLException {
+        try {
+            teamDAO.deleteTeam(teamId);
+        } catch (SQLException e) {
+            throw e;
+        }
+    }
 }
- 
