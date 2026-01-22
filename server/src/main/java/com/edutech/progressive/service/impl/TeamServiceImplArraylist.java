@@ -1,73 +1,91 @@
 package com.edutech.progressive.service.impl;
+ 
 import java.sql.SQLException;
+
 import java.util.ArrayList;
+
 import java.util.Collections;
+
 import java.util.Comparator;
+
 import java.util.List;
+
+import java.util.stream.Collectors;
+ 
+import org.springframework.beans.factory.annotation.Qualifier;
+
 import org.springframework.stereotype.Service;
+ 
 import com.edutech.progressive.entity.Team;
+
 import com.edutech.progressive.service.TeamService;
+ 
+@Service
+
+@Qualifier("teamServiceArrayList")
 
 public class TeamServiceImplArraylist implements TeamService {
+ 
+    // In-memory store for Team entities
+
     private List<Team> teams = new ArrayList<>();
-    public TeamServiceImplArraylist() {
-        teams.add(new Team(101, "Royal Challengers Bengaluru", "Bengaluru", "United Spirits", 2008));
-        teams.add(new Team(102, "Mumbai Indians", "Mumbai", "Reliance", 2008));
-        teams.add(new Team(103, "Rajasthan Royals", "Jaipur", "Emerging Media", 2008));
-        teams.add(new Team(104, "Gujarat Titans", "Ahmedabad", "CVC Capital", 2021));
-        teams.add(new Team(105, "Chennai Super Kings", "Chennai", "India Cements", 2008));
-
-    }
-
+ 
     @Override
-    public List<Team> getAllTeams() {
+
+    public List<Team> getAllTeams() throws SQLException {
+
+        // Defensive copy to avoid external mutation
+
         return new ArrayList<>(teams);
-    }
 
+    }
+ 
     @Override
-    public int addTeam(Team team) {
+
+    public int addTeam(Team team) throws SQLException {
+
         teams.add(team);
-        return teams.size();
-    }
 
-    @Override
-    public List<Team> getAllTeamsSortedByName() {
-        List<Team> copy = new ArrayList<>(teams);
-        Collections.sort(copy);
-        return copy;
-    }
+        return teams.size(); // Day-5 spec: return new size/ID
 
+    }
+ 
     @Override
+
+    public List<Team> getAllTeamsSortedByName() throws SQLException {
+
+        // Case-insensitive, null-safe comparator (helps test stability)
+
+        return teams.stream()
+
+                .sorted(Comparator.comparing(
+
+                        Team::getTeamName,
+
+                        Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)
+
+                ))
+
+                .collect(Collectors.toList());
+
+    }
+ 
+    @Override
+
     public void emptyArrayList() {
-        teams = new ArrayList<>();
-    }
 
-    @Override
-    public Team getTeamById(int teamId) {
-        for (Team t : teams) {
-            if (t.getTeamId() == teamId)
-                return t;
-        }
-        return null;
-    }
+        this.teams = new ArrayList<>();
 
-    @Override
-    public void updateTeam(Team team) {
-        if (team == null)
-            return;
-        for (int i = 0; i < teams.size(); i++) {
-            if (teams.get(i).getTeamId() == team.getTeamId()) {
-                teams.set(i, team);
-                return;
-            }
-        }
     }
+ 
+    // Not required for ArrayList implementation on Day 5
 
-    @Override
-    public void deleteTeam(int teamId) {
-        teams.removeIf(t -> t.getTeamId() == teamId);
-    }
+    @Override public Team getTeamById(int teamId) throws SQLException { return null; }
+
+    @Override public void updateTeam(Team team) throws SQLException { }
+
+    @Override public void deleteTeam(int teamId) throws SQLException { }
 
 }
-
-
+ 
+ 

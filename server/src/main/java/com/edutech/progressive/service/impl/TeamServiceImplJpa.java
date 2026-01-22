@@ -1,17 +1,20 @@
 package com.edutech.progressive.service.impl;
  
 import java.sql.SQLException;
+import java.util.Comparator;
 import java.util.List;
  
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
  
 import com.edutech.progressive.entity.Team;
 import com.edutech.progressive.repository.TeamRepository;
 import com.edutech.progressive.service.TeamService;
  
+@Service
 public class TeamServiceImplJpa implements TeamService {
- 
     private TeamRepository teamRepository;
+ 
     @Autowired
     public TeamServiceImplJpa(TeamRepository teamRepository) {
         this.teamRepository = teamRepository;
@@ -24,19 +27,19 @@ public class TeamServiceImplJpa implements TeamService {
  
     @Override
     public int addTeam(Team team) throws SQLException {
-        teamRepository.save(team);
-        return getAllTeams().size();
+        return teamRepository.save(team).getTeamId();
     }
  
     @Override
     public List<Team> getAllTeamsSortedByName() throws SQLException {
-        return teamRepository.findAllOrderByNameAsc();
+        List<Team> sortedTeam = teamRepository.findAll();
+        sortedTeam.sort(Comparator.comparing(Team::getTeamName));
+        return sortedTeam;
     }
  
     public Team getTeamById(int teamId) throws SQLException {
-        return teamRepository.findById(teamId).get();
+        return teamRepository.findByTeamId(teamId);
     }
- 
     @Override
     public void updateTeam(Team team) throws SQLException {
         Team teamDetails = getTeamById(team.getTeamId());
@@ -46,7 +49,6 @@ public class TeamServiceImplJpa implements TeamService {
         teamDetails.setEstablishmentYear(team.getEstablishmentYear());
         teamRepository.save(teamDetails);
     }
- 
     @Override
     public void deleteTeam(int teamId) throws SQLException {
         teamRepository.deleteById(teamId);

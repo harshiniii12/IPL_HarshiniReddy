@@ -33,7 +33,7 @@ public interface CricketerService {
  
     //Do not implement these methods in CricketerServiceImplArraylist.java and CricketerServiceImplJdbc.java class
 
-    default List<Cricketer> getCricketersByTeam(int teamId) {
+    default List<Cricketer> getCricketersByTeam(int teamId) throws SQLException {
 
         return null;
 
