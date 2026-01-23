@@ -1,91 +1,58 @@
 package com.edutech.progressive.service.impl;
- 
+
 import java.sql.SQLException;
-
 import java.util.ArrayList;
-
 import java.util.Collections;
-
 import java.util.Comparator;
-
 import java.util.List;
-
 import java.util.stream.Collectors;
- 
 import org.springframework.beans.factory.annotation.Qualifier;
-
 import org.springframework.stereotype.Service;
- 
 import com.edutech.progressive.entity.Team;
-
 import com.edutech.progressive.service.TeamService;
- 
-@Service
 
+@Service
 @Qualifier("teamServiceArrayList")
 
 public class TeamServiceImplArraylist implements TeamService {
- 
-    // In-memory store for Team entities
 
     private List<Team> teams = new ArrayList<>();
- 
-    @Override
 
+    @Override
     public List<Team> getAllTeams() throws SQLException {
-
-        // Defensive copy to avoid external mutation
-
         return new ArrayList<>(teams);
-
     }
- 
-    @Override
 
+    @Override
     public int addTeam(Team team) throws SQLException {
-
         teams.add(team);
-
-        return teams.size(); // Day-5 spec: return new size/ID
-
+        return teams.size();
     }
- 
-    @Override
 
+    @Override
     public List<Team> getAllTeamsSortedByName() throws SQLException {
 
-        // Case-insensitive, null-safe comparator (helps test stability)
-
-        return teams.stream()
-
-                .sorted(Comparator.comparing(
-
-                        Team::getTeamName,
-
-                        Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)
-
-                ))
-
-                .collect(Collectors.toList());
+        return teams.stream().sorted(Comparator.comparing(Team::getTeamName,Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))).collect(Collectors.toList());
 
     }
- 
+
     @Override
-
     public void emptyArrayList() {
-
         this.teams = new ArrayList<>();
-
     }
- 
-    // Not required for ArrayList implementation on Day 5
 
-    @Override public Team getTeamById(int teamId) throws SQLException { return null; }
 
-    @Override public void updateTeam(Team team) throws SQLException { }
+    @Override
+    public Team getTeamById(int teamId) throws SQLException {
+        return null;
+    }
 
-    @Override public void deleteTeam(int teamId) throws SQLException { }
+    @Override
+    public void updateTeam(Team team) throws SQLException {
+    }
+
+    @Override
+    public void deleteTeam(int teamId) throws SQLException {
+    }
 
 }
- 
- 
