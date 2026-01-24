@@ -1,6 +1,8 @@
+
 package com.edutech.progressive.service.impl;
  
 import com.edutech.progressive.entity.Match;
+import com.edutech.progressive.exception.NoMatchesFoundException;
 import com.edutech.progressive.repository.MatchRepository;
 import com.edutech.progressive.service.MatchService;
 import org.springframework.stereotype.Service;
@@ -33,7 +35,6 @@ public class MatchServiceImplJpa implements MatchService {
     @Transactional(readOnly = true)
     public Match getMatchById(int matchId) throws SQLException {
         try {
-            // @Id is matchId, so findById works directly
             return matchRepository.findById(matchId).orElse(null);
         } catch (Exception e) {
             throw toSqlException(e);
@@ -53,7 +54,6 @@ public class MatchServiceImplJpa implements MatchService {
     @Override
     public void updateMatch(Match match) throws SQLException {
         try {
-            // Controller sets the path variable onto the entity before calling this
             matchRepository.save(match);
         } catch (Exception e) {
             throw toSqlException(e);
@@ -73,7 +73,13 @@ public class MatchServiceImplJpa implements MatchService {
     @Transactional(readOnly = true)
     public List<Match> getAllMatchesByStatus(String status) throws SQLException {
         try {
-            return matchRepository.findAllByStatusIgnoreCase(status);
+            List<Match> matches = matchRepository.findAllByStatusIgnoreCase(status);
+            if (matches == null || matches.isEmpty()) {
+                throw new NoMatchesFoundException("No matches found with status '" + status + "'");
+            }
+            return matches;
+        } catch (NoMatchesFoundException ex) {
+            throw ex;
         } catch (Exception e) {
             throw toSqlException(e);
         }
