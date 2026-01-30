@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Table(name = "vote")
-@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Vote {
 
     @Id
@@ -17,21 +17,23 @@ public class Vote {
     @Column(name = "email", nullable = false, length = 100)
     private String email;
 
+    // Allowed values: "Team", "Batsman", "Bowler", "All-rounder", "Wicketkeeper"
     @Column(name = "category", nullable = false, length = 100)
     private String category;
 
+    // Avoid serialization issues on GET /vote
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cricketer_id")
     @JsonIgnore
     private Cricketer cricketer;
 
+    // Avoid serialization issues on GET /vote
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")
     @JsonIgnore
     private Team team;
 
-    public Vote() {
-    }
+    public Vote() { }
 
     public Vote(Integer voteId, String email, String category, Cricketer cricketer, Team team) {
         this.voteId = voteId;
@@ -41,43 +43,18 @@ public class Vote {
         this.team = team;
     }
 
-    public Integer getVoteId() {
-        return voteId;
-    }
+    public Integer getVoteId() { return voteId; }
+    public void setVoteId(Integer voteId) { this.voteId = voteId; }
 
-    public void setVoteId(Integer voteId) {
-        this.voteId = voteId;
-    }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
-    public String getEmail() {
-        return email;
-    }
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    public Cricketer getCricketer() { return cricketer; }
+    public void setCricketer(Cricketer cricketer) { this.cricketer = cricketer; }
 
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    public Cricketer getCricketer() {
-        return cricketer;
-    }
-
-    public void setCricketer(Cricketer cricketer) {
-        this.cricketer = cricketer;
-    }
-
-    public Team getTeam() {
-        return team;
-    }
-
-    public void setTeam(Team team) {
-        this.team = team;
-    }
+    public Team getTeam() { return team; }
+    public void setTeam(Team team) { this.team = team; }
 }

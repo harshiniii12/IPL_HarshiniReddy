@@ -14,13 +14,14 @@ public interface TicketBookingRepository extends JpaRepository<TicketBooking, In
     // For GET /ticket/user/{email}
     List<TicketBooking> findByEmail(String email);
  
-    
+    // Delete by match id (used elsewhere in project)
     @Modifying
     @Transactional
     @Query("delete from TicketBooking tb where tb.match.matchId = :matchId")
     void deleteByMatchId(@Param("matchId") int matchId);
  
-   
+    // Delete bookings for matches involving a specific team (first or second)
+    // Works with your Match entity fields: firstTeamId, secondTeamId
     @Modifying
     @Transactional
     @Query("delete from TicketBooking tb " +

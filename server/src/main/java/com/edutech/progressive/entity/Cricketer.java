@@ -1,4 +1,3 @@
-
 package com.edutech.progressive.entity;
 
 import javax.persistence.*;
@@ -12,8 +11,8 @@ public class Cricketer implements Comparable<Cricketer> {
     @Column(name = "cricketer_id")
     private int cricketerId;
 
-    @ManyToOne(cascade = CascadeType.MERGE)
-    @JoinColumn(name = "team_id")
+    @ManyToOne(fetch = FetchType.LAZY)                  // Many cricketers -> One team
+    @JoinColumn(name = "team_id", nullable = false)     // FK column in cricketer table
     private Team team;
 
     @Column(name = "cricketer_name", nullable = false)
@@ -37,113 +36,47 @@ public class Cricketer implements Comparable<Cricketer> {
     @Column(name = "total_wickets")
     private int totalWickets;
 
-    public Cricketer() {
+    public Cricketer() { }
 
-    }
-
-    public Cricketer(int cricketerId, int teamId, String cricketerName, int age, String nationality,
-            int experience, String role, int totalRuns, int totalWickets) {
+    public Cricketer(int cricketerId, Team team, String cricketerName, int age, String nationality,
+                     int experience, String role, int totalRuns, int totalWickets) {
         this.cricketerId = cricketerId;
-        this.cricketerName = cricketerName;
-        this.age = age;
-        this.nationality = nationality;
-        this.experience = experience;
-        this.role = role;
-        this.totalRuns = totalRuns;
-        this.totalWickets = totalWickets;
-
-        Team t = new Team();
-        t.setTeamId(teamId);
-        this.team = t;
-    }
-
-    public int getCricketerId() {
-        return cricketerId;
-    }
-
-    public void setCricketerId(int cricketerId) {
-        this.cricketerId = cricketerId;
-    }
-
-    public Team getTeam() {
-        return team;
-    }
-
-    public void setTeam(Team team) {
         this.team = team;
-    }
-
-    public String getCricketerName() {
-        return cricketerName;
-    }
-
-    public void setCricketerName(String cricketerName) {
         this.cricketerName = cricketerName;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
         this.age = age;
-    }
-
-    public String getNationality() {
-        return nationality;
-    }
-
-    public void setNationality(String nationality) {
         this.nationality = nationality;
-    }
-
-    public int getExperience() {
-        return experience;
-    }
-
-    public void setExperience(int experience) {
         this.experience = experience;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
         this.role = role;
-    }
-
-    public int getTotalRuns() {
-        return totalRuns;
-    }
-
-    public void setTotalRuns(int totalRuns) {
         this.totalRuns = totalRuns;
-    }
-
-    public int getTotalWickets() {
-        return totalWickets;
-    }
-
-    public void setTotalWickets(int totalWickets) {
         this.totalWickets = totalWickets;
     }
 
-    @Transient
-    public Integer getTeamId() {
-        return (team != null ? team.getTeamId() : null);
-    }
+    public int getCricketerId() { return cricketerId; }
+    public void setCricketerId(int cricketerId) { this.cricketerId = cricketerId; }
 
-    @Transient
-    public void setTeamId(Integer teamId) {
-        if (teamId == null) {
-            this.team = null;
-        } else {
-            if (this.team == null)
-                this.team = new Team();
-            this.team.setTeamId(teamId);
-        }
-    }
+    public Team getTeam() { return team; }
+    public void setTeam(Team team) { this.team = team; }
+
+    public String getCricketerName() { return cricketerName; }
+    public void setCricketerName(String cricketerName) { this.cricketerName = cricketerName; }
+
+    public int getAge() { return age; }
+    public void setAge(int age) { this.age = age; }
+
+    public String getNationality() { return nationality; }
+    public void setNationality(String nationality) { this.nationality = nationality; }
+
+    public int getExperience() { return experience; }
+    public void setExperience(int experience) { this.experience = experience; }
+
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
+
+    public int getTotalRuns() { return totalRuns; }
+    public void setTotalRuns(int totalRuns) { this.totalRuns = totalRuns; }
+
+    public int getTotalWickets() { return totalWickets; }
+    public void setTotalWickets(int totalWickets) { this.totalWickets = totalWickets; }
 
     @Override
     public int compareTo(Cricketer other) {

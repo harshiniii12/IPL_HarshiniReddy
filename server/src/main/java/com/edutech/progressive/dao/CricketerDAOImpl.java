@@ -1,129 +1,138 @@
+
 package com.edutech.progressive.dao;
- 
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
- 
+
 import com.edutech.progressive.config.DatabaseConnectionManager;
 import com.edutech.progressive.entity.Cricketer;
- 
-public class CricketerDAOImpl implements CricketerDAO{
-    Connection con = DatabaseConnectionManager.getConnection();
- 
+import com.edutech.progressive.entity.Team;
+
+public class CricketerDAOImpl implements CricketerDAO {
+
     @Override
-    public int addCricketer(Cricketer cricketer) throws SQLException{
-        String sql = "INSERT INTO cricketer (team_id, cricketer_name, age, nationality, experience, role, total_runs, total_wickets) VALUES (?,?,?,?,?,?,?,?)";
-        try {
-            PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            ps.setInt(1, cricketer.getTeamId());
-            ps.setString(2, cricketer.getCricketerName());
-            ps.setInt(3, cricketer.getAge());
-            ps.setString(4, cricketer.getNationality());
-            ps.setInt(5, cricketer.getExperience());
-            ps.setString(6, cricketer.getRole());
-            ps.setInt(7, cricketer.getTotalRuns());
-            ps.setInt(8, cricketer.getTotalWickets());
- 
-            int rows = ps.executeUpdate();
-            if (rows > 0) {
-                ResultSet rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    cricketer.setCricketerId(rs.getInt(1));
-                    return rs.getInt(1);
-                }
+    public int addCricketer(Cricketer c) throws SQLException {
+        String sql = "INSERT INTO cricketer (team_id, cricketer_name, age, nationality, experience, role, total_runs, total_wickets) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        try (Connection conn = DatabaseConnectionManager.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            if (c.getTeam() != null) {
+                ps.setInt(1, c.getTeam().getTeamId());
+            } else {
+                ps.setNull(1, Types.INTEGER);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } 
-        return -1;
+
+            ps.setString(2, c.getCricketerName());
+            ps.setInt(3, c.getAge());
+            ps.setString(4, c.getNationality());
+            ps.setInt(5, c.getExperience());
+            ps.setString(6, c.getRole());
+            ps.setInt(7, c.getTotalRuns());
+            ps.setInt(8, c.getTotalWickets());
+
+            int affected = ps.executeUpdate();
+            if (affected == 0) throw new SQLException("Inserting cricketer failed, no rows affected.");
+
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) return rs.getInt(1);
+                throw new SQLException("Inserting cricketer failed, no ID obtained.");
+            }
+        }
     }
- 
+
     @Override
-    public Cricketer getCricketerById(int cricketerId) throws SQLException{
-        String sql = "SELECT * FROM cricketer WHERE cricketer_id = ?";
+    public Cricketer getCricketerById(int cricketerId) throws SQLException {
+        String sql = "SELECT cricketer_id, team_id, cricketer_name, age, nationality, experience, role, total_runs, total_wickets " +
+                     "FROM cricketer WHERE cricketer_id = ?";
+        Connection conn = null; PreparedStatement ps = null; ResultSet rs = null;
         try {
-            PreparedStatement ps = con.prepareStatement(sql);
+            conn = DatabaseConnectionManager.getConnection();
+            ps = conn.prepareStatement(sql);
             ps.setInt(1, cricketerId);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                Cricketer cricketer = new Cricketer();
-                cricketer.setCricketerId(rs.getInt("cricketer_id"));
-                cricketer.setTeamId(rs.getInt("team_id"));
-                cricketer.setCricketerName(rs.getString("cricketer_name"));
-                cricketer.setAge(rs.getInt("age"));
-                cricketer.setNationality(rs.getString("nationality"));
-                cricketer.setExperience(rs.getInt("experience"));
-                cricketer.setRole(rs.getString("role"));
-                cricketer.setTotalRuns(rs.getInt("total_runs"));
-                cricketer.setTotalWickets(rs.getInt("total_wickets"));
-                return cricketer;
+            rs = ps.executeQuery();
+            if (rs.next()) return mapRow(rs);
+            return null;
+        } catch (SQLException e) {
+            System.err.println("getCricketerById failed: " + e.getMessage());
+            throw e;
+        } finally {
+            closeQuietly(rs); closeQuietly(ps); closeQuietly(conn);
+        }
+    }
+
+    @Override
+    public void updateCricketer(Cricketer c) throws SQLException {
+        String sql = "UPDATE cricketer SET team_id=?, cricketer_name=?, age=?, nationality=?, experience=?, role=?, total_runs=?, total_wickets=? " +
+                     "WHERE cricketer_id=?";
+        try (Connection conn = DatabaseConnectionManager.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            if (c.getTeam() != null) {
+                ps.setInt(1, c.getTeam().getTeamId());
+            } else {
+                ps.setNull(1, Types.INTEGER);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
- 
-    @Override
-    public void updateCricketer(Cricketer cricketer) throws SQLException{
-        String sql = "UPDATE cricketer SET team_id = ?, cricketer_name = ?, age = ?, nationality = ?, experience = ?, role = ?, total_runs = ?, total_wickets = ? WHERE cricketer_id = ?";
-        try {
-            PreparedStatement ps = con.prepareStatement(sql);
-            ps.setInt(1, cricketer.getTeamId());
-            ps.setString(2, cricketer.getCricketerName());
-            ps.setInt(3, cricketer.getAge());
-            ps.setString(4, cricketer.getNationality());
-            ps.setInt(5, cricketer.getExperience());
-            ps.setString(6, cricketer.getRole());
-            ps.setInt(7, cricketer.getTotalRuns());
-            ps.setInt(8, cricketer.getTotalWickets());
-            ps.setInt(9, cricketer.getCricketerId());
+
+            ps.setString(2, c.getCricketerName());
+            ps.setInt(3, c.getAge());
+            ps.setString(4, c.getNationality());
+            ps.setInt(5, c.getExperience());
+            ps.setString(6, c.getRole());
+            ps.setInt(7, c.getTotalRuns());
+            ps.setInt(8, c.getTotalWickets());
+            ps.setInt(9, c.getCricketerId());
             ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
- 
+
     @Override
-    public void deleteCricketer(int cricketerId){
+    public void deleteCricketer(int cricketerId) throws SQLException {
         String sql = "DELETE FROM cricketer WHERE cricketer_id = ?";
-        try {
-            PreparedStatement ps = con.prepareStatement(sql);
+        try (Connection conn = DatabaseConnectionManager.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, cricketerId);
             ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            // throw e;
         }
     }
- 
+
     @Override
-    public List<Cricketer> getAllCricketers() throws SQLException{
-        List<Cricketer> cricketers = new ArrayList<>();
-        String sql = "SELECT * FROM cricketer";
-        try {
-            PreparedStatement ps = con.prepareStatement(sql);
-            ResultSet resultSet = ps.executeQuery();
-            while (resultSet.next()) {
-                int cricketerId = resultSet.getInt("cricketer_id");
-                int teamId = resultSet.getInt("team_id");
-                String cricketerName = resultSet.getString("cricketer_name");
-                int age = resultSet.getInt("age");
-                String nationality = resultSet.getString("nationality");
-                int experience = resultSet.getInt("experience");
-                String role = resultSet.getString("role");
-                int totalRuns = resultSet.getInt("total_runs");
-                int totalWickets = resultSet.getInt("total_wickets");
-                cricketers.add(new Cricketer(cricketerId, teamId, cricketerName, age, nationality, experience, role, totalRuns, totalWickets));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+    public List<Cricketer> getAllCricketers() throws SQLException {
+        String sql = "SELECT cricketer_id, team_id, cricketer_name, age, nationality, experience, role, total_runs, total_wickets FROM cricketer";
+        List<Cricketer> list = new ArrayList<>();
+        try (Connection conn = DatabaseConnectionManager.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) list.add(mapRow(rs));
         }
-        return cricketers;
+        return list;
     }
- 
+
+    private Cricketer mapRow(ResultSet rs) throws SQLException {
+        Cricketer c = new Cricketer();
+        c.setCricketerId(rs.getInt("cricketer_id"));
+        int teamId = rs.getInt("team_id");
+        Team team = new Team(teamId, null, null, null, 0);
+        c.setTeam(team);
+
+        c.setCricketerName(rs.getString("cricketer_name"));
+        c.setAge(rs.getInt("age"));
+        c.setNationality(rs.getString("nationality"));
+        c.setExperience(rs.getInt("experience"));
+        c.setRole(rs.getString("role"));
+        c.setTotalRuns(rs.getInt("total_runs"));
+        c.setTotalWickets(rs.getInt("total_wickets"));
+        return c;
+    }
+
+    private void closeQuietly(AutoCloseable a) {
+        if (a == null) return;
+        try { a.close(); } catch (Exception ignored) {}
+    }
 }

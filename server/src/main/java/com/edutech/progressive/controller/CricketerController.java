@@ -2,7 +2,8 @@
 package com.edutech.progressive.controller;
 
 import com.edutech.progressive.entity.Cricketer;
-import com.edutech.progressive.service.impl.CricketerServiceImplJpa;
+import com.edutech.progressive.service.CricketerService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,80 +16,75 @@ import java.util.List;
 @RequestMapping("/cricketer")
 public class CricketerController {
 
-    private final CricketerServiceImplJpa service;
+    private final CricketerService cricketerService;
 
     @Autowired
-    public CricketerController(CricketerServiceImplJpa service) {
-        this.service = service;
+    public CricketerController(CricketerService cricketerService) {
+        this.cricketerService = cricketerService;
     }
 
+    // GET /cricketer
     @GetMapping
     public ResponseEntity<List<Cricketer>> getAllCricketers() {
         try {
-            return new ResponseEntity<>(service.getAllCricketers(), HttpStatus.OK);
-        } catch (SQLException e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.ok(cricketerService.getAllCricketers());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Cricketer> getCricketerById(@PathVariable("id") int id) {
+    // GET /cricketer/{cricketerId}
+    @GetMapping("/{cricketerId}")
+    public ResponseEntity<Cricketer> getCricketerById(@PathVariable int cricketerId) {
         try {
-            Cricketer c = service.getCricketerById(id);
-            return c != null ? new ResponseEntity<>(c, HttpStatus.OK)
-                             : new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (SQLException e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.ok(cricketerService.getCricketerById(cricketerId));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
+    // POST /cricketer
     @PostMapping
     public ResponseEntity<Integer> addCricketer(@RequestBody Cricketer cricketer) {
         try {
-            Integer newId = service.addCricketer(cricketer);
-            return new ResponseEntity<>(newId, HttpStatus.CREATED);
-        } catch (SQLException e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            Integer id = cricketerService.addCricketer(cricketer);
+            return ResponseEntity.status(HttpStatus.CREATED).body(id);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Void> updateCricketer(@PathVariable("id") int id,
+    // PUT /cricketer/{cricketerId}
+    @PutMapping("/{cricketerId}")
+    public ResponseEntity<Void> updateCricketer(@PathVariable int cricketerId,
                                                 @RequestBody Cricketer cricketer) {
         try {
-            cricketer.setCricketerId(id); // ensure path ID is used
-            service.updateCricketer(cricketer);
-            return new ResponseEntity<>(HttpStatus.OK);
-        } catch (SQLException e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            cricketer.setCricketerId(cricketerId); 
+            cricketerService.updateCricketer(cricketer);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCricketer(@PathVariable("id") int id) {
+    // DELETE /cricketer/{cricketerId}
+    @DeleteMapping("/{cricketerId}")
+    public ResponseEntity<Void> deleteCricketer(@PathVariable int cricketerId) {
         try {
-            service.deleteCricketer(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (SQLException e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            cricketerService.deleteCricketer(cricketerId);
+            return ResponseEntity.noContent().build(); // 204
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
+    // FETCH by team
     @GetMapping("/team/{teamId}")
     public ResponseEntity<List<Cricketer>> getCricketersByTeam(@PathVariable int teamId) {
         try {
-            return new ResponseEntity<>(service.getCricketersByTeam(teamId), HttpStatus.OK);
-        } catch (SQLException e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping("/sorted/experience")
-    public ResponseEntity<List<Cricketer>> getCricketersSortedByExperience() {
-        try {
-            return new ResponseEntity<>(service.getAllCricketersSortedByExperience(), HttpStatus.OK);
-        } catch (SQLException e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.ok(cricketerService.getCricketersByTeam(teamId));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }

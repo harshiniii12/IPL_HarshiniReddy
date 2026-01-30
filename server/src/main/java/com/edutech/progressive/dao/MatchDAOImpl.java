@@ -1,3 +1,4 @@
+ 
 package com.edutech.progressive.dao;
  
 import java.sql.Connection;
@@ -39,14 +40,6 @@ public class MatchDAOImpl implements MatchDAO{
             e.printStackTrace();
             throw e;
         } 
-        // finally {
-        //     if (statement != null) {
-        //         statement.close();
-        //     }
-        //     if (connection != null) {
-        //         connection.close();
-        //     }
-        // }
         return generatedID;
     }
  
@@ -75,17 +68,6 @@ public class MatchDAOImpl implements MatchDAO{
             e.printStackTrace();
             throw e;
         } 
-        // finally {
-        //     if (resultSet != null) {
-        //         resultSet.close();
-        //     }
-        //     if (statement != null) {
-        //         statement.close();
-        //     }
-        //     if (connection != null) {
-        //         connection.close();
-        //     }
-        // }
         return null;
     }
  
@@ -109,10 +91,6 @@ public class MatchDAOImpl implements MatchDAO{
         } catch (SQLException e) {
             e.printStackTrace();
             throw e;
-        // } finally {
-        //     if (connection != null) {
-        //         connection.close();
-        //     }
         }
     }
  
@@ -129,10 +107,6 @@ public class MatchDAOImpl implements MatchDAO{
         } catch (SQLException e) {
             e.printStackTrace();
             throw e;
-        // } finally {
-        //     if (connection != null) {
-        //         connection.close();
-        //     }
         }
     }
  
@@ -161,10 +135,6 @@ public class MatchDAOImpl implements MatchDAO{
         } catch (SQLException e) {
             e.printStackTrace();
             throw e;
-        // } finally {
-        //     if (connection != null) {
-        //         connection.close();
-        //     }
         }
         return matches;
     }
